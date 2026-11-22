@@ -1,0 +1,26 @@
+# Prowlarr - manage indexers once, synced to Radarr + Sonarr. http://<host>:9696
+# Host-VPN variant: no gluetun. Traffic follows the host's routing, so it goes
+# through the VPN app running on the PC (turn on its kill switch).
+[Unit]
+Description=Prowlarr
+
+[Container]
+ContainerName=prowlarr
+Image=lscr.io/linuxserver/prowlarr:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=9696:9696
+UserNS=keep-id:uid=1000,gid=1000
+Environment=PUID=1000
+Environment=PGID=1000
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Volume=prowlarr-config:/config
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

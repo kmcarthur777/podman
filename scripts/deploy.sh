@@ -29,6 +29,9 @@ STACKS=(network "${STACKS[@]}")
 for s in "${STACKS[@]}"; do
   [[ -d "$REPO/stacks/$s" ]] || { echo "Unknown stack '$s' in $HOST_FILE" >&2; exit 1; }
 done
+if [[ " ${STACKS[*]} " == *" arr "* && " ${STACKS[*]} " == *" arr-hostvpn "* ]]; then
+  echo "Pick ONE of 'arr' (gluetun VPN) or 'arr-hostvpn' (VPN app on the PC) in $HOST_FILE" >&2; exit 1
+fi
 
 STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
 for s in "${STACKS[@]}"; do
@@ -55,6 +58,9 @@ for s in "${STACKS[@]}"; do
       cp -rn "$REPO/stacks/dashboard/config/." "$DATA_DIR/homepage/config/" ;;
     sync)
       mkdir -p "$DATA_DIR/syncthing" ;;
+    arr-hostvpn)
+      mkdir -p "$HOME/data/torrents/movies" "$HOME/data/torrents/tv" \
+               "$HOME/data/media/movies" "$HOME/data/media/tv" ;;
     arr)
       # Shared tree for downloads + library (see README "Folder layout").
       mkdir -p "$HOME/data/torrents/movies" "$HOME/data/torrents/tv" \

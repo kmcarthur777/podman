@@ -1,0 +1,27 @@
+# Bazarr - subtitles for everything Radarr/Sonarr grab. http://<host>:6767
+# Host-VPN variant: no gluetun. Traffic follows the host's routing, so it goes
+# through the VPN app running on the PC (turn on its kill switch).
+[Unit]
+Description=Bazarr
+
+[Container]
+ContainerName=bazarr
+Image=lscr.io/linuxserver/bazarr:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=6767:6767
+UserNS=keep-id:uid=1000,gid=1000
+Environment=PUID=1000
+Environment=PGID=1000
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Volume=bazarr-config:/config
+Volume=%h/data/media:/data/media:z
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,28 @@
+# Radarr - finds, downloads and organises movies. http://<host>:7878
+# Host-VPN variant: no gluetun. Traffic follows the host's routing, so it goes
+# through the VPN app running on the PC (turn on its kill switch).
+[Unit]
+Description=Radarr
+
+[Container]
+ContainerName=radarr
+Image=lscr.io/linuxserver/radarr:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=7878:7878
+UserNS=keep-id:uid=1000,gid=1000
+Environment=PUID=1000
+Environment=PGID=1000
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Volume=radarr-config:/config
+# One shared /data tree (downloads + library) so imports are instant hardlinks.
+Volume=%h/data:/data:z
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

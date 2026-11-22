@@ -1,0 +1,22 @@
+# FlareSolverr - gets Prowlarr past Cloudflare checks (internal only: http://flaresolverr:8191)
+# Host-VPN variant: no gluetun. Traffic follows the host's routing, so it goes
+# through the VPN app running on the PC (turn on its kill switch).
+[Unit]
+Description=FlareSolverr
+
+[Container]
+ContainerName=flaresolverr
+Image=ghcr.io/flaresolverr/flaresolverr:latest
+AutoUpdate=registry
+Network=homelab.network
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Environment=LOG_LEVEL=info
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

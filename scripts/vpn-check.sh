@@ -2,6 +2,27 @@
 # Prove the VPN pod is NOT using your real IP. Run any time, and after setup.
 set -uo pipefail
 ok=1
+
+if ! podman container exists gluetun 2>/dev/null; then
+  # Host-VPN mode (stacks/arr-hostvpn): every container shares the PC's VPN,
+  # so compare against the VPN interface instead of a "home IP".
+  echo "Host-VPN mode (no gluetun)."
+  vpn_if="$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(proton|pvpn|tun|wg)' | head -1)"
+  if [[ -n "$vpn_if" ]]; then echo "VPN interface on host:    $vpn_if (up)"
+  else echo "!! No VPN interface found (proton*/tun*/wg*). Is the VPN connected?"; ok=0; fi
+  echo "Public IP seen by the PC: $(curl -s --max-time 10 https://ipinfo.io/ip)  (should be a Proton IP)"
+  for c in radarr sonarr prowlarr qbittorrent; do
+    podman container exists "$c" 2>/dev/null || continue
+    printf '%-12s %s\n' "$c" "$(podman exec "$c" curl -s --max-time 10 https://ipinfo.io/ip)"
+  done
+  bound="$(podman exec qbittorrent sh -c "grep -E '^Session\\\\Interface=' /config/qBittorrent/qBittorrent.conf" 2>/dev/null | cut -d= -f2)"
+  echo
+  if [[ -n "$bound" ]]; then echo "qBittorrent bound to interface: $bound (good - it stops if the VPN drops)"
+  else echo "!! qBittorrent is NOT bound to the VPN interface (Options -> Advanced -> Network interface)"; ok=0; fi
+  [[ $ok == 1 ]] || exit 1
+  exit 0
+fi
+
 home_ip="$(curl -s --max-time 10 https://ipinfo.io/ip)"
 echo "Your real (home) IP:      ${home_ip:-unknown}"
 

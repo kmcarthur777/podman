@@ -1,0 +1,27 @@
+# Sonarr - finds, downloads and organises TV shows. http://<host>:8989
+# Host-VPN variant: no gluetun. Traffic follows the host's routing, so it goes
+# through the VPN app running on the PC (turn on its kill switch).
+[Unit]
+Description=Sonarr
+
+[Container]
+ContainerName=sonarr
+Image=lscr.io/linuxserver/sonarr:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=8989:8989
+UserNS=keep-id:uid=1000,gid=1000
+Environment=PUID=1000
+Environment=PGID=1000
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Volume=sonarr-config:/config
+Volume=%h/data:/data:z
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

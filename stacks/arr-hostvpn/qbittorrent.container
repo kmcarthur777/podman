@@ -1,0 +1,30 @@
+# qBittorrent - download client. http://<host>:8080
+# Host-VPN variant: runs on the HOST network (not the homelab bridge) so that
+#   1. you can bind it to the VPN interface (Options -> Advanced -> Network
+#      interface = proton0). If the VPN drops, qBittorrent stops instead of
+#      leaking your home IP, even if the VPN app's kill switch is off.
+#   2. the VPN's forwarded port reaches it without republishing ports.
+# Other containers reach it at host.containers.internal:8080.
+[Unit]
+Description=qBittorrent
+
+[Container]
+ContainerName=qbittorrent
+Image=lscr.io/linuxserver/qbittorrent:latest
+AutoUpdate=registry
+Network=host
+UserNS=keep-id:uid=1000,gid=1000
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=Etc/UTC
+Environment=WEBUI_PORT=8080
+Volume=qbittorrent-config:/config
+Volume=%h/data/torrents:/data/torrents:z
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

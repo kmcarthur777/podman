@@ -14,7 +14,8 @@ stacks/           one folder per group of related containers
   dashboard/      Homepage + Uptime Kuma
   sync/           Syncthing
   media/          Jellyfin + Jellyseerr
-  arr/            VPN pod: Gluetun + Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, FlareSolverr
+  arr-hostvpn/    Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, FlareSolverr using the PC's own VPN app
+  arr/            the same apps inside a Gluetun VPN pod (pick one of the two)
   ai/             Ollama + Open WebUI
   gaming/         Minecraft server (on-demand)
   dns/            AdGuard Home (meant for the server)
@@ -94,7 +95,65 @@ Reach services from your phone or other PCs:
 ./scripts/open-firewall.sh
 ```
 
-## VPN download stack (`stacks/arr`)
+## Download stack using the PC's VPN app (`stacks/arr-hostvpn`) - current default
+
+Use this when the ProtonVPN app is already running on the PC. The containers
+have no VPN of their own; their traffic follows the PC's routing, which means
+it goes through Proton.
+
+| App | Image | Port |
+|---|---|---|
+| Radarr | `lscr.io/linuxserver/radarr:latest` | 7878 |
+| Sonarr | `lscr.io/linuxserver/sonarr:latest` | 8989 |
+| Prowlarr | `lscr.io/linuxserver/prowlarr:latest` | 9696 |
+| qBittorrent | `lscr.io/linuxserver/qbittorrent:latest` | 8080 |
+| Bazarr | `lscr.io/linuxserver/bazarr:latest` | 6767 |
+| FlareSolverr | `ghcr.io/flaresolverr/flaresolverr:latest` | internal 8191 |
+
+Tradeoff versus the Gluetun pod: **if the VPN app disconnects, or you turn it off
+to game, the containers use your home IP.** Two settings close that gap:
+
+1. **ProtonVPN app -> Settings -> Kill switch: ON.** With the *Advanced/permanent*
+   option, nothing on the PC reaches the internet unless the VPN is connected.
+2. **qBittorrent bound to the VPN interface.** qBittorrent runs on the host
+   network for this reason. Find the interface name while connected (usually
+   `proton0`):
+   ```bash
+   ip -o link show | grep -E 'proton|tun|wg'
+   ```
+   Then in qBittorrent go to *Options -> Advanced -> Network interface* and pick it. Now
+   torrents stop when the VPN is down, even if the kill switch is off.
+
+**Port forwarding:** in the Proton app, turn on *Port forwarding* and connect to a
+P2P server. The app shows the forwarded port. Enter it in qBittorrent under
+*Options -> Connection -> Port for incoming connections*. Proton gives you a new
+port when you reconnect, so update it then. Downloads still work without it, just slower.
+
+Wiring the apps together (they're on the `homelab` network, while qBittorrent is on the host):
+
+- **qBittorrent** (http://localhost:8080). Get the temporary password with
+  `journalctl --user -u qbittorrent | grep -i password`, then change it. Set the
+  default save path to `/data/torrents`, and set the network interface (above).
+- **Prowlarr** (http://localhost:9696). Add your indexers. Add FlareSolverr at
+  `http://flaresolverr:8191`. Under *Settings -> Apps*, add Radarr (`http://radarr:7878`)
+  and Sonarr (`http://sonarr:8989`) with their API keys (each app's *Settings -> General*).
+  Use `http://prowlarr:9696` as the Prowlarr server address.
+- **Radarr / Sonarr.** Add a qBittorrent download client with host `host.containers.internal`,
+  port `8080`, and category `movies` / `tv`. Set the root folder to `/data/media/movies` / `/data/media/tv`.
+- **Bazarr** (http://localhost:6767). Connect Radarr at host `radarr`, port 7878, and Sonarr at host `sonarr`, port 8989.
+- **Jellyfin** libraries: `/data/media/movies` and `/data/media/tv`.
+- **Jellyseerr:** Jellyfin is `http://jellyfin:8096`, Radarr is `radarr:7878`, and Sonarr is `sonarr:8989`.
+
+`./scripts/vpn-check.sh` confirms the VPN interface is up, shows the public IP each
+app sees (it should be a Proton IP), and warns you if qBittorrent isn't bound to the VPN.
+
+The [Folder layout](#folder-layout) section below applies to both stacks.
+
+## VPN download stack in a Gluetun pod (`stacks/arr`)
+
+Switch to this later (`arr` instead of `arr-hostvpn` in `hosts/gaming-pc.conf`) if
+you'd rather not run the VPN app for the whole PC. That keeps games off the VPN,
+and only the download apps use the tunnel.
 
 ```
             internet
