@@ -1,0 +1,30 @@
+# qBittorrent - download client, only reachable through the VPN. http://<host>:8080
+[Unit]
+Description=qBittorrent
+# Only ever run while gluetun (the VPN) is up; stop if it goes down.
+Requires=gluetun.service
+After=gluetun.service
+BindsTo=gluetun.service
+
+[Container]
+ContainerName=qbittorrent
+Image=lscr.io/linuxserver/qbittorrent:latest
+AutoUpdate=registry
+Pod=vpn.pod
+Environment=PUID=1000
+Environment=PGID=1000
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Environment=WEBUI_PORT=8080
+Volume=qbittorrent-config:/config
+Volume=%h/data/torrents:/data/torrents:z
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+# default.target: start at login. gluetun.service: come back when the VPN restarts.
+WantedBy=default.target
+WantedBy=gluetun.service

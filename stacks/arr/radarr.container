@@ -1,0 +1,30 @@
+# Radarr - finds, downloads and organises movies. http://<host>:7878
+[Unit]
+Description=Radarr
+# Only ever run while gluetun (the VPN) is up; stop if it goes down.
+Requires=gluetun.service
+After=gluetun.service
+BindsTo=gluetun.service
+
+[Container]
+ContainerName=radarr
+Image=lscr.io/linuxserver/radarr:latest
+AutoUpdate=registry
+Pod=vpn.pod
+Environment=PUID=1000
+Environment=PGID=1000
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Volume=radarr-config:/config
+# One shared /data tree (downloads + library) so imports are instant hardlinks, not copies.
+Volume=%h/data:/data:z
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+# default.target: start at login. gluetun.service: come back when the VPN restarts.
+WantedBy=default.target
+WantedBy=gluetun.service

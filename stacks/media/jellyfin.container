@@ -13,8 +13,8 @@ UserNS=keep-id:uid=1000,gid=1000
 User=1000:1000
 Volume=jellyfin-config:/config
 Volume=jellyfin-cache:/cache
-# Your media library, read-only. Change the host path to where your media lives.
-Volume=%h/Videos:/media/videos:ro,z
+# Library managed by Radarr/Sonarr: movies in /data/media/movies, TV in /data/media/tv.
+Volume=%h/data/media:/data/media:ro,z
 
 # --- Hardware transcoding (pick ONE, uncomment) ---
 # AMD / Intel GPU (VA-API):

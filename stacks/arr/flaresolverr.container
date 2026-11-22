@@ -1,0 +1,26 @@
+# FlareSolverr - gets Prowlarr past Cloudflare checks on some indexers (internal only, localhost:8191)
+[Unit]
+Description=FlareSolverr
+# Only ever run while gluetun (the VPN) is up; stop if it goes down.
+Requires=gluetun.service
+After=gluetun.service
+BindsTo=gluetun.service
+
+[Container]
+ContainerName=flaresolverr
+Image=ghcr.io/flaresolverr/flaresolverr:latest
+AutoUpdate=registry
+Pod=vpn.pod
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Environment=LOG_LEVEL=info
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+# default.target: start at login. gluetun.service: come back when the VPN restarts.
+WantedBy=default.target
+WantedBy=gluetun.service

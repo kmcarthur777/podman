@@ -1,0 +1,29 @@
+# Bazarr - fetches subtitles for everything Radarr/Sonarr grab. http://<host>:6767
+[Unit]
+Description=Bazarr
+# Only ever run while gluetun (the VPN) is up; stop if it goes down.
+Requires=gluetun.service
+After=gluetun.service
+BindsTo=gluetun.service
+
+[Container]
+ContainerName=bazarr
+Image=lscr.io/linuxserver/bazarr:latest
+AutoUpdate=registry
+Pod=vpn.pod
+Environment=PUID=1000
+Environment=PGID=1000
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Volume=bazarr-config:/config
+Volume=%h/data/media:/data/media:z
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+# default.target: start at login. gluetun.service: come back when the VPN restarts.
+WantedBy=default.target
+WantedBy=gluetun.service

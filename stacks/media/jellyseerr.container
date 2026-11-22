@@ -1,0 +1,23 @@
+# Jellyseerr - Netflix-style "request a movie/show" page for you and family.
+# Requests go to Radarr/Sonarr automatically. http://<host>:5055
+# Setup: Jellyfin = http://jellyfin:8096
+#        Radarr   = host.containers.internal:7878, Sonarr = host.containers.internal:8989
+[Unit]
+Description=Jellyseerr requests
+
+[Container]
+ContainerName=jellyseerr
+Image=docker.io/fallenbagel/jellyseerr:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=5055:5055
+Volume=jellyseerr-config:/app/config
+Environment=TZ=Etc/UTC
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,23 @@
+# The "vpn" pod: every container in it shares ONE network namespace, owned by
+# gluetun. Gluetun's firewall only lets traffic out through the VPN tunnel, so
+# if the VPN drops, Radarr/Sonarr/Prowlarr/qBittorrent/Bazarr lose internet
+# instead of falling back to your real IP (kill switch).
+#
+# Inside the pod the apps talk to each other on localhost:
+#   qBittorrent localhost:8080   Prowlarr localhost:9696   FlareSolverr localhost:8191
+#   Radarr      localhost:7878   Sonarr   localhost:8989
+# From outside the pod (Jellyseerr, Homepage) use host.containers.internal:<port>.
+[Pod]
+PodName=vpn
+Network=homelab.network
+# Web UIs, reachable from the host/LAN. Torrent traffic itself is NOT published:
+# peers reach qBittorrent only through the VPN.
+PublishPort=7878:7878
+PublishPort=8989:8989
+PublishPort=9696:9696
+PublishPort=8080:8080
+PublishPort=6767:6767
+# keep-id: files the apps create in ~/data are owned by you on the host.
+# dns=127.0.0.1: every container resolves DNS through gluetun (encrypted, over
+# the tunnel) instead of your ISP's resolver -> no DNS leaks.
+PodmanArgs=--userns=keep-id:uid=1000,gid=1000 --dns=127.0.0.1

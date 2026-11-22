@@ -10,6 +10,8 @@ PORTS=(
   8384/tcp          # Syncthing UI
   22000/tcp 22000/udp 21027/udp  # Syncthing sync + discovery
   25565/tcp         # Minecraft
+  5055/tcp          # Jellyseerr
+  7878/tcp 8989/tcp 9696/tcp 8080/tcp 6767/tcp  # Radarr Sonarr Prowlarr qBittorrent Bazarr
 )
 for p in "${PORTS[@]}"; do sudo firewall-cmd --permanent --add-port="$p"; done
 sudo firewall-cmd --reload

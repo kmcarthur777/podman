@@ -1,0 +1,29 @@
+# Sonarr - finds, downloads and organises TV shows. http://<host>:8989
+[Unit]
+Description=Sonarr
+# Only ever run while gluetun (the VPN) is up; stop if it goes down.
+Requires=gluetun.service
+After=gluetun.service
+BindsTo=gluetun.service
+
+[Container]
+ContainerName=sonarr
+Image=lscr.io/linuxserver/sonarr:latest
+AutoUpdate=registry
+Pod=vpn.pod
+Environment=PUID=1000
+Environment=PGID=1000
+# Change to your timezone, e.g. America/New_York
+Environment=TZ=Etc/UTC
+Volume=sonarr-config:/config
+Volume=%h/data:/data:z
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+# default.target: start at login. gluetun.service: come back when the VPN restarts.
+WantedBy=default.target
+WantedBy=gluetun.service

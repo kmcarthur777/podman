@@ -1,0 +1,33 @@
+# Gluetun - VPN client + kill-switch firewall + DNS-over-TLS for the vpn pod.
+# Credentials live OUTSIDE the repo in ~/homelab/gluetun/vpn.env
+# (created from vpn.env.example by deploy.sh). Supports ProtonVPN, Mullvad,
+# AirVPN, PIA, NordVPN, Surfshark, Windscribe and ~30 others.
+[Unit]
+Description=Gluetun VPN (kill switch for the vpn pod)
+
+[Container]
+ContainerName=gluetun
+Image=docker.io/qmcgaw/gluetun:v3
+AutoUpdate=registry
+Pod=vpn.pod
+AddCapability=NET_ADMIN
+AddDevice=/dev/net/tun
+EnvironmentFile=%h/homelab/gluetun/vpn.env
+Environment=TZ=Etc/UTC
+# Allow the web UI ports in from the host/LAN through gluetun's firewall.
+Environment=FIREWALL_INPUT_PORTS=7878,8989,9696,8080,6767
+# systemd reports gluetun "started" only once the VPN is connected, so the apps
+# (which start After= gluetun) never run before the tunnel is up.
+HealthCmd=/gluetun-entrypoint healthcheck
+HealthInterval=10s
+HealthStartPeriod=20s
+HealthRetries=3
+Notify=healthy
+
+[Service]
+Restart=always
+RestartSec=10
+TimeoutStartSec=180
+
+[Install]
+WantedBy=default.target

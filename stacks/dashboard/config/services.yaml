@@ -12,6 +12,32 @@
         href: http://localhost:8096
         description: Movies, TV, music
         icon: jellyfin.png
+    - Jellyseerr:
+        href: http://localhost:5055
+        description: Request movies + shows
+        icon: jellyseerr.png
+
+- Downloads (via VPN):
+    - Radarr:
+        href: http://localhost:7878
+        description: Movies
+        icon: radarr.png
+    - Sonarr:
+        href: http://localhost:8989
+        description: TV shows
+        icon: sonarr.png
+    - Prowlarr:
+        href: http://localhost:9696
+        description: Indexers
+        icon: prowlarr.png
+    - qBittorrent:
+        href: http://localhost:8080
+        description: Download client
+        icon: qbittorrent.png
+    - Bazarr:
+        href: http://localhost:6767
+        description: Subtitles
+        icon: bazarr.png
 
 - Sync:
     - Syncthing:
