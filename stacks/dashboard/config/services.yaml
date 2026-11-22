@@ -1,46 +1,46 @@
-# Links shown on Homepage. Change "localhost" to your PC's hostname or IP
-# (e.g. gaming-pc.lan) if you open the dashboard from another device.
+# Links shown on Homepage. They point at the gaming PC's LAN IP (192.168.8.249);
+# give the PC a fixed/reserved IP in your router so this never changes.
 # NOTE: deploy.sh only copies this file the first time. After that, edit
 # ~/homelab/homepage/config/services.yaml (Homepage reloads it automatically).
 - Downloads:
     - Radarr:
-        href: http://localhost:7878
+        href: http://192.168.8.249:7878
         description: Movies
         icon: radarr.png
     - Sonarr:
-        href: http://localhost:8989
+        href: http://192.168.8.249:8989
         description: TV shows
         icon: sonarr.png
     - Prowlarr:
-        href: http://localhost:9696
+        href: http://192.168.8.249:9696
         description: Indexers
         icon: prowlarr.png
     - qBittorrent:
-        href: http://localhost:8080
+        href: http://192.168.8.249:8080
         description: Download client (bound to the VPN)
         icon: qbittorrent.png
     - Bazarr:
-        href: http://localhost:6767
+        href: http://192.168.8.249:6767
         description: Subtitles
         icon: bazarr.png
 
 # Uncomment when you turn these stacks on in hosts/gaming-pc.conf:
 # - Media:
 #     - Jellyfin:
-#         href: http://localhost:8096
+#         href: http://192.168.8.249:8096
 #         icon: jellyfin.png
 #     - Jellyseerr:
-#         href: http://localhost:5055
+#         href: http://192.168.8.249:5055
 #         icon: jellyseerr.png
 # - Monitoring:
 #     - Uptime Kuma:
-#         href: http://localhost:3001
+#         href: http://192.168.8.249:3001
 #         icon: uptime-kuma.png
 # - Sync:
 #     - Syncthing:
-#         href: http://localhost:8384
+#         href: http://192.168.8.249:8384
 #         icon: syncthing.png
 # - AI:
 #     - Open WebUI:
-#         href: http://localhost:3080
+#         href: http://192.168.8.249:3080
 #         icon: open-webui.png

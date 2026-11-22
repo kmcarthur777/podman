@@ -80,7 +80,11 @@ cd ~/podman-homelab
 ./scripts/deploy.sh gaming-pc
 ```
 
-Then open http://localhost:3000.
+Then open http://192.168.8.249:3000 (the gaming PC's LAN IP; it works from any
+device at home). Homepage's links use that IP too, so **reserve 192.168.8.249 for
+the PC in your router's DHCP settings**. Otherwise the PC could get a different IP after a
+reboot and the links would break. If the IP ever changes, update it in
+`~/homelab/homepage/config/services.yaml`.
 
 ### Before you deploy, edit these
 
