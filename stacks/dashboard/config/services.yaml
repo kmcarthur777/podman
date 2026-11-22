@@ -1,0 +1,26 @@
+# Links use the browser's host so this works from any device on the LAN.
+# Change "localhost" to your PC's hostname or IP (e.g. gaming-pc.lan) if you
+# open the dashboard from your phone.
+- Monitoring:
+    - Uptime Kuma:
+        href: http://localhost:3001
+        description: Service uptime + alerts
+        icon: uptime-kuma.png
+
+- Media:
+    - Jellyfin:
+        href: http://localhost:8096
+        description: Movies, TV, music
+        icon: jellyfin.png
+
+- Sync:
+    - Syncthing:
+        href: http://localhost:8384
+        description: File + game-save sync
+        icon: syncthing.png
+
+- AI:
+    - Open WebUI:
+        href: http://localhost:3080
+        description: Chat with local models (Ollama)
+        icon: open-webui.png

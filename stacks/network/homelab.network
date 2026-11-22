@@ -1,0 +1,4 @@
+# Shared bridge network. Containers on it reach each other by ContainerName
+# (e.g. open-webui -> http://ollama:11434).
+[Network]
+NetworkName=homelab

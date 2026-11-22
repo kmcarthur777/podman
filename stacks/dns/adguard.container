@@ -1,0 +1,26 @@
+# AdGuard Home - network-wide ad/tracker blocking DNS.
+# NOTE: not enabled on the gaming PC by default. If this machine is off, every
+# device using it for DNS loses internet. Move it to the always-on server.
+# Setup UI on first run: http://<host>:3000 is taken by Homepage, so it's mapped to 3053.
+[Unit]
+Description=AdGuard Home DNS
+
+[Container]
+ContainerName=adguard
+Image=docker.io/adguard/adguardhome:latest
+AutoUpdate=registry
+Network=homelab.network
+# Rootless podman can't bind port 53 unless you lower the unprivileged port
+# floor:  echo 'net.ipv4.ip_unprivileged_port_start=53' | sudo tee /etc/sysctl.d/99-unpriv-ports.conf
+PublishPort=53:53/tcp
+PublishPort=53:53/udp
+PublishPort=3053:3000
+PublishPort=8053:80
+Volume=adguard-work:/opt/adguardhome/work
+Volume=adguard-conf:/opt/adguardhome/conf
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

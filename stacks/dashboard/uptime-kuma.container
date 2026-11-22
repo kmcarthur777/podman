@@ -1,0 +1,20 @@
+# Uptime Kuma - watches your services/websites and alerts (Discord, email, ntfy...).
+# http://<host>:3001
+[Unit]
+Description=Uptime Kuma monitoring
+
+[Container]
+ContainerName=uptime-kuma
+Image=docker.io/louislam/uptime-kuma:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=3001:3001
+Volume=uptime-kuma-data:/app/data
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

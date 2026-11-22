@@ -1,0 +1,24 @@
+# Homepage - a start page linking to every service on this machine.
+# http://<host>:3000
+[Unit]
+Description=Homepage dashboard
+
+[Container]
+ContainerName=homepage
+Image=ghcr.io/gethomepage/homepage:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=3000:3000
+# Config is seeded from stacks/dashboard/config on first deploy; edit it in ~/homelab/homepage/config.
+Volume=%h/homelab/homepage/config:/app/config:Z
+# Required by newer Homepage versions. Replace * with e.g. gaming-pc.lan:3000 to lock it down.
+Environment=HOMEPAGE_ALLOWED_HOSTS=*
+
+[Service]
+Restart=on-failure
+# Low priority so the game always wins CPU/disk contention.
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

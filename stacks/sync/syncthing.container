@@ -1,0 +1,30 @@
+# Syncthing - peer-to-peer folder sync. Great for game saves, screenshots,
+# and later mirroring data to the always-on server.
+# http://<host>:8384
+[Unit]
+Description=Syncthing file sync
+
+[Container]
+ContainerName=syncthing
+HostName=gaming-pc
+Image=docker.io/syncthing/syncthing:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=8384:8384
+PublishPort=22000:22000/tcp
+PublishPort=22000:22000/udp
+PublishPort=21027:21027/udp
+# Map your host user to uid/gid 1000 in the container (the image's default),
+# so synced files are owned by you on the host.
+UserNS=keep-id:uid=1000,gid=1000
+Volume=%h/homelab/syncthing:/var/syncthing:Z
+# Add folders you want to sync, e.g. your Steam screenshots or emulator saves:
+# Volume=%h/Games/saves:/data/saves:z
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

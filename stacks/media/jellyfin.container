@@ -1,0 +1,32 @@
+# Jellyfin - self-hosted Netflix for your own movies/TV/music.
+# http://<host>:8096
+[Unit]
+Description=Jellyfin media server
+
+[Container]
+ContainerName=jellyfin
+Image=docker.io/jellyfin/jellyfin:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=8096:8096
+UserNS=keep-id:uid=1000,gid=1000
+User=1000:1000
+Volume=jellyfin-config:/config
+Volume=jellyfin-cache:/cache
+# Your media library, read-only. Change the host path to where your media lives.
+Volume=%h/Videos:/media/videos:ro,z
+
+# --- Hardware transcoding (pick ONE, uncomment) ---
+# AMD / Intel GPU (VA-API):
+# AddDevice=/dev/dri
+# GroupAdd=keep-groups
+# NVIDIA (needs nvidia-container-toolkit + CDI spec, see README):
+# AddDevice=nvidia.com/gpu=all
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,28 @@
+# Minecraft Java server (Paper). Friends connect to <your-ip>:25565.
+# Does NOT start at login (no [Install] section) - start it when you want to play:
+#   systemctl --user start minecraft
+[Unit]
+Description=Minecraft server
+
+[Container]
+ContainerName=minecraft
+Image=docker.io/itzg/minecraft-server:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=25565:25565
+Volume=minecraft-data:/data
+# You must accept the Minecraft EULA (https://aka.ms/MinecraftEULA) by setting this to TRUE.
+Environment=EULA=FALSE
+Environment=TYPE=PAPER
+Environment=VERSION=LATEST
+Environment=MEMORY=4G
+Environment=DIFFICULTY=normal
+Environment="MOTD=Homelab Minecraft"
+# Hard cap so the server can never eat RAM your games need.
+PodmanArgs=--memory=5g
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=600
+# Saves the world cleanly on stop.
+TimeoutStopSec=120

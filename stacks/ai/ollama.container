@@ -1,0 +1,31 @@
+# Ollama - runs local LLMs on your GPU. Not published to the LAN; Open WebUI
+# talks to it over the homelab network. Port 11434 is bound to localhost only.
+[Unit]
+Description=Ollama local LLM runtime
+
+[Container]
+ContainerName=ollama
+# AMD users: change the tag to :rocm and use the AMD device lines below.
+Image=docker.io/ollama/ollama:latest
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=127.0.0.1:11434:11434
+Volume=ollama-models:/root/.ollama
+# Unload models from VRAM after 5 min idle so they don't steal it from games.
+Environment=OLLAMA_KEEP_ALIVE=5m
+
+# --- GPU (pick ONE, uncomment) ---
+# NVIDIA (needs nvidia-container-toolkit + CDI spec, see README):
+# AddDevice=nvidia.com/gpu=all
+# AMD (with the :rocm image):
+# AddDevice=/dev/kfd
+# AddDevice=/dev/dri
+# GroupAdd=keep-groups
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,25 @@
+# Open WebUI - ChatGPT-style web UI for Ollama.
+# http://<host>:3080
+[Unit]
+Description=Open WebUI
+Wants=ollama.service
+After=ollama.service
+
+[Container]
+ContainerName=open-webui
+Image=ghcr.io/open-webui/open-webui:main
+AutoUpdate=registry
+Network=homelab.network
+PublishPort=3080:8080
+Volume=open-webui-data:/app/backend/data
+Environment=OLLAMA_BASE_URL=http://ollama:11434
+
+[Service]
+Restart=on-failure
+CPUWeight=20
+IOWeight=20
+# First start downloads models/embeddings and can be slow.
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
