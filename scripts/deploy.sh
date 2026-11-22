@@ -19,8 +19,6 @@ QUADLET_BIN=/usr/libexec/podman/quadlet
 
 [[ -f "$HOST_FILE" ]] || { echo "No host file: $HOST_FILE" >&2; exit 1; }
 command -v podman >/dev/null || { echo "podman is not installed" >&2; exit 1; }
-PODMAN_MAJOR="$(podman version --format '{{.Client.Version}}' | cut -d. -f1)"
-(( PODMAN_MAJOR >= 5 )) || { echo "Podman 5+ required (pods in Quadlet). Found: $(podman --version)" >&2; exit 1; }
 
 # Stack list: strip comments/blank lines, always include the shared network.
 mapfile -t STACKS < <(sed 's/#.*//' "$HOST_FILE" | awk 'NF{print $1}')
@@ -29,6 +27,11 @@ STACKS=(network "${STACKS[@]}")
 for s in "${STACKS[@]}"; do
   [[ -d "$REPO/stacks/$s" ]] || { echo "Unknown stack '$s' in $HOST_FILE" >&2; exit 1; }
 done
+# The Gluetun stack uses Quadlet pods, which need Podman 5.
+if [[ " ${STACKS[*]} " == *" arr "* ]]; then
+  PODMAN_MAJOR="$(podman version --format '{{.Client.Version}}' | cut -d. -f1)"
+  (( PODMAN_MAJOR >= 5 )) || { echo "The 'arr' stack needs Podman 5+. Found: $(podman --version)" >&2; exit 1; }
+fi
 if [[ " ${STACKS[*]} " == *" arr "* && " ${STACKS[*]} " == *" arr-hostvpn "* ]]; then
   echo "Pick ONE of 'arr' (gluetun VPN) or 'arr-hostvpn' (VPN app on the PC) in $HOST_FILE" >&2; exit 1
 fi
@@ -109,5 +112,5 @@ if [[ -n "${VPN_NOT_CONFIGURED:-}" ]]; then
 fi
 
 echo
-echo "Done. Status:  systemctl --user list-units 'homepage*' 'uptime-kuma*' 'syncthing*' 'jellyfin*' 'ollama*' 'open-webui*' 'minecraft*' 'gluetun*' 'radarr*' 'sonarr*' 'prowlarr*' 'qbittorrent*' 'bazarr*' 'jellyseerr*'"
+echo "Done. Status:  systemctl --user list-units 'homepage*' 'radarr*' 'sonarr*' 'prowlarr*' 'qbittorrent*' 'bazarr*' 'flaresolverr*' 'uptime-kuma*' 'syncthing*' 'jellyfin*' 'jellyseerr*' 'ollama*' 'open-webui*' 'minecraft*' 'gluetun*'"
 echo "Containers:    podman ps"

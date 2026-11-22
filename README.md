@@ -11,7 +11,8 @@ hosts/            which stacks run on which machine
   server.conf     (future always-on box)
 stacks/           one folder per group of related containers
   network/        shared "homelab" network (always deployed)
-  dashboard/      Homepage + Uptime Kuma
+  dashboard/      Homepage
+  monitoring/     Uptime Kuma
   sync/           Syncthing
   media/          Jellyfin + Jellyseerr
   arr-hostvpn/    Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, FlareSolverr using the PC's own VPN app
@@ -28,6 +29,13 @@ scripts/
 ```
 
 ## What runs on the gaming PC
+
+**Turned on right now** (see `hosts/gaming-pc.conf`): Homepage, plus Radarr, Sonarr,
+Prowlarr, qBittorrent, Bazarr and FlareSolverr (`arr-hostvpn`, using the ProtonVPN app).
+Everything else below is ready to go: uncomment its line in `hosts/gaming-pc.conf`
+and re-run `./scripts/deploy.sh gaming-pc`.
+
+All available services:
 
 | Service | Port | Why it's on the gaming PC |
 |---|---|---|
@@ -57,8 +65,8 @@ down: AdGuard Home/Pi-hole (DNS), Vaultwarden (passwords), Nextcloud/Immich
 
 ## First-time setup (Fedora / Bazzite / Nobara)
 
-Podman ships with Fedora-based distros. **Podman 5+ is required** (the VPN
-stack uses Quadlet pods). Check with:
+Podman ships with Fedora-based distros. Podman 5+ is required only for the
+Gluetun `arr` stack, which uses Quadlet pods. Check your version with:
 
 ```bash
 podman --version

@@ -1,23 +1,8 @@
-# Links use the browser's host so this works from any device on the LAN.
-# Change "localhost" to your PC's hostname or IP (e.g. gaming-pc.lan) if you
-# open the dashboard from your phone.
-- Monitoring:
-    - Uptime Kuma:
-        href: http://localhost:3001
-        description: Service uptime + alerts
-        icon: uptime-kuma.png
-
-- Media:
-    - Jellyfin:
-        href: http://localhost:8096
-        description: Movies, TV, music
-        icon: jellyfin.png
-    - Jellyseerr:
-        href: http://localhost:5055
-        description: Request movies + shows
-        icon: jellyseerr.png
-
-- Downloads (via VPN):
+# Links shown on Homepage. Change "localhost" to your PC's hostname or IP
+# (e.g. gaming-pc.lan) if you open the dashboard from another device.
+# NOTE: deploy.sh only copies this file the first time. After that, edit
+# ~/homelab/homepage/config/services.yaml (Homepage reloads it automatically).
+- Downloads:
     - Radarr:
         href: http://localhost:7878
         description: Movies
@@ -32,21 +17,30 @@
         icon: prowlarr.png
     - qBittorrent:
         href: http://localhost:8080
-        description: Download client
+        description: Download client (bound to the VPN)
         icon: qbittorrent.png
     - Bazarr:
         href: http://localhost:6767
         description: Subtitles
         icon: bazarr.png
 
-- Sync:
-    - Syncthing:
-        href: http://localhost:8384
-        description: File + game-save sync
-        icon: syncthing.png
-
-- AI:
-    - Open WebUI:
-        href: http://localhost:3080
-        description: Chat with local models (Ollama)
-        icon: open-webui.png
+# Uncomment when you turn these stacks on in hosts/gaming-pc.conf:
+# - Media:
+#     - Jellyfin:
+#         href: http://localhost:8096
+#         icon: jellyfin.png
+#     - Jellyseerr:
+#         href: http://localhost:5055
+#         icon: jellyseerr.png
+# - Monitoring:
+#     - Uptime Kuma:
+#         href: http://localhost:3001
+#         icon: uptime-kuma.png
+# - Sync:
+#     - Syncthing:
+#         href: http://localhost:8384
+#         icon: syncthing.png
+# - AI:
+#     - Open WebUI:
+#         href: http://localhost:3080
+#         icon: open-webui.png
