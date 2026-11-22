@@ -19,6 +19,7 @@ stacks/           one folder per group of related containers
   ai/             Ollama + Open WebUI
   gaming/         Minecraft server (on-demand)
   dns/            AdGuard Home (meant for the server)
+podman-desktop/   import the download stack from the Podman Desktop GUI (see its README)
 scripts/
   deploy.sh       install/update a host's stacks
   undeploy.sh     remove everything (keeps data)
@@ -50,6 +51,9 @@ and Ollama unloads models from VRAM after 5 minutes idle.
 **Left for the always-on server**, because they're only useful if they never go
 down: AdGuard Home/Pi-hole (DNS), Vaultwarden (passwords), Nextcloud/Immich
 (cloud files/photos), Home Assistant, a reverse proxy (Caddy) and Tailscale.
+
+> **Podman Desktop users:** everything this repo deploys shows up in Podman Desktop
+> automatically. See [podman-desktop/README.md](podman-desktop/README.md).
 
 ## First-time setup (Fedora / Bazzite / Nobara)
 

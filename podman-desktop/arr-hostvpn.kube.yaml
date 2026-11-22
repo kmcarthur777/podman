@@ -1,0 +1,94 @@
+# Radarr, Sonarr, Prowlarr, Bazarr, FlareSolverr + qBittorrent for Podman Desktop.
+# Uses the VPN app running on the PC (same design as stacks/arr-hostvpn).
+#
+# Import: Podman Desktop -> Pods (or Containers) -> "Play Kubernetes YAML" -> pick this file.
+# Before importing, once in a terminal (SELinux + folders; see podman-desktop/README.md):
+#   mkdir -p ~/data/{torrents,media}/{movies,tv}
+#   chcon -R -t container_file_t ~/data
+# Then replace every /var/home/CHANGE_ME below with your home folder (echo $HOME).
+#
+# Do NOT also deploy stacks/arr-hostvpn with deploy.sh - same ports. Both use the
+# same named volumes (radarr-config, ...), so settings carry over if you switch.
+---
+# Pod 1: the *arr apps. They share one network namespace, so they reach each
+# other on localhost (Radarr localhost:7878, Prowlarr localhost:9696, ...).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: arr
+  annotations:
+    # Files created in ~/data are owned by you on the host.
+    io.podman.annotations.userns: keep-id:uid=1000,gid=1000
+spec:
+  restartPolicy: Always
+  containers:
+    - name: radarr
+      image: lscr.io/linuxserver/radarr:latest
+      ports: [{containerPort: 7878, hostPort: 7878}]
+      env: &lsio_env
+        - {name: PUID, value: "1000"}
+        - {name: PGID, value: "1000"}
+        - {name: TZ, value: Etc/UTC}   # change to e.g. America/New_York
+      volumeMounts:
+        - {name: radarr-config, mountPath: /config}
+        - {name: data, mountPath: /data}
+    - name: sonarr
+      image: lscr.io/linuxserver/sonarr:latest
+      ports: [{containerPort: 8989, hostPort: 8989}]
+      env: *lsio_env
+      volumeMounts:
+        - {name: sonarr-config, mountPath: /config}
+        - {name: data, mountPath: /data}
+    - name: prowlarr
+      image: lscr.io/linuxserver/prowlarr:latest
+      ports: [{containerPort: 9696, hostPort: 9696}]
+      env: *lsio_env
+      volumeMounts:
+        - {name: prowlarr-config, mountPath: /config}
+    - name: bazarr
+      image: lscr.io/linuxserver/bazarr:latest
+      ports: [{containerPort: 6767, hostPort: 6767}]
+      env: *lsio_env
+      volumeMounts:
+        - {name: bazarr-config, mountPath: /config}
+        - {name: data, mountPath: /data}
+    - name: flaresolverr
+      image: ghcr.io/flaresolverr/flaresolverr:latest
+      env:
+        - {name: LOG_LEVEL, value: info}
+  volumes:
+    # persistentVolumeClaim = a named Podman volume (created if missing).
+    - {name: radarr-config, persistentVolumeClaim: {claimName: radarr-config}}
+    - {name: sonarr-config, persistentVolumeClaim: {claimName: sonarr-config}}
+    - {name: prowlarr-config, persistentVolumeClaim: {claimName: prowlarr-config}}
+    - {name: bazarr-config, persistentVolumeClaim: {claimName: bazarr-config}}
+    - name: data
+      hostPath: {path: /var/home/CHANGE_ME/data, type: Directory}
+---
+# Pod 2: qBittorrent on the HOST network, so you can bind it to the VPN
+# interface (Options -> Advanced -> Network interface = proton0). If the VPN
+# drops, torrents stop instead of using your home IP.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: qbittorrent
+  annotations:
+    io.podman.annotations.userns: keep-id:uid=1000,gid=1000
+spec:
+  restartPolicy: Always
+  hostNetwork: true
+  containers:
+    - name: qbittorrent
+      image: lscr.io/linuxserver/qbittorrent:latest
+      env:
+        - {name: PUID, value: "1000"}
+        - {name: PGID, value: "1000"}
+        - {name: TZ, value: Etc/UTC}
+        - {name: WEBUI_PORT, value: "8080"}
+      volumeMounts:
+        - {name: qbittorrent-config, mountPath: /config}
+        - {name: torrents, mountPath: /data/torrents}
+  volumes:
+    - {name: qbittorrent-config, persistentVolumeClaim: {claimName: qbittorrent-config}}
+    - name: torrents
+      hostPath: {path: /var/home/CHANGE_ME/data/torrents, type: Directory}
