@@ -15,6 +15,9 @@ Environment=PUID=1000
 Environment=PGID=1000
 # Change to your timezone, e.g. America/New_York
 Environment=TZ=Etc/UTC
+# No login page: anyone on your home network can open it (it's not reachable from the internet).
+Environment=PROWLARR__AUTH__METHOD=External
+Environment=PROWLARR__AUTH__REQUIRED=DisabledForLocalAddresses
 Volume=prowlarr-config:/config
 
 [Service]

@@ -25,30 +25,45 @@ spec:
     - name: radarr
       image: lscr.io/linuxserver/radarr:latest
       ports: [{containerPort: 7878, hostPort: 7878}]
-      env: &lsio_env
+      env:
         - {name: PUID, value: "1000"}
         - {name: PGID, value: "1000"}
         - {name: TZ, value: Etc/UTC}   # change to e.g. America/New_York
+        - {name: RADARR__AUTH__METHOD, value: External}   # no login page
+        - {name: RADARR__AUTH__REQUIRED, value: DisabledForLocalAddresses}
       volumeMounts:
         - {name: radarr-config, mountPath: /config}
         - {name: data, mountPath: /data}
     - name: sonarr
       image: lscr.io/linuxserver/sonarr:latest
       ports: [{containerPort: 8989, hostPort: 8989}]
-      env: *lsio_env
+      env:
+        - {name: PUID, value: "1000"}
+        - {name: PGID, value: "1000"}
+        - {name: TZ, value: Etc/UTC}   # change to e.g. America/New_York
+        - {name: SONARR__AUTH__METHOD, value: External}   # no login page
+        - {name: SONARR__AUTH__REQUIRED, value: DisabledForLocalAddresses}
       volumeMounts:
         - {name: sonarr-config, mountPath: /config}
         - {name: data, mountPath: /data}
     - name: prowlarr
       image: lscr.io/linuxserver/prowlarr:latest
       ports: [{containerPort: 9696, hostPort: 9696}]
-      env: *lsio_env
+      env:
+        - {name: PUID, value: "1000"}
+        - {name: PGID, value: "1000"}
+        - {name: TZ, value: Etc/UTC}   # change to e.g. America/New_York
+        - {name: PROWLARR__AUTH__METHOD, value: External}   # no login page
+        - {name: PROWLARR__AUTH__REQUIRED, value: DisabledForLocalAddresses}
       volumeMounts:
         - {name: prowlarr-config, mountPath: /config}
     - name: bazarr
       image: lscr.io/linuxserver/bazarr:latest
       ports: [{containerPort: 6767, hostPort: 6767}]
-      env: *lsio_env
+      env:
+        - {name: PUID, value: "1000"}
+        - {name: PGID, value: "1000"}
+        - {name: TZ, value: Etc/UTC}
       volumeMounts:
         - {name: bazarr-config, mountPath: /config}
         - {name: data, mountPath: /data}

@@ -15,6 +15,9 @@ Environment=PUID=1000
 Environment=PGID=1000
 # Change to your timezone, e.g. America/New_York
 Environment=TZ=Etc/UTC
+# No login page: anyone on your home network can open it (it's not reachable from the internet).
+Environment=SONARR__AUTH__METHOD=External
+Environment=SONARR__AUTH__REQUIRED=DisabledForLocalAddresses
 Volume=sonarr-config:/config
 Volume=%h/data:/data:z
 

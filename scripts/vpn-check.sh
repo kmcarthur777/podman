@@ -18,7 +18,7 @@ if ! podman container exists gluetun 2>/dev/null; then
   bound="$(podman exec qbittorrent sh -c "grep -E '^Session\\\\Interface=' /config/qBittorrent/qBittorrent.conf" 2>/dev/null | cut -d= -f2)"
   echo
   if [[ -n "$bound" ]]; then echo "qBittorrent bound to interface: $bound (good - it stops if the VPN drops)"
-  else echo "!! qBittorrent is NOT bound to the VPN interface (Options -> Advanced -> Network interface)"; ok=0; fi
+  else echo "Note: qBittorrent isn't bound to the VPN interface (optional - relies on the VPN app's kill switch)"; fi
   [[ $ok == 1 ]] || exit 1
   exit 0
 fi

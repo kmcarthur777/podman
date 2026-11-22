@@ -102,6 +102,11 @@ done
 echo "Starting: ${START[*]%.service}"
 systemctl --user restart "${START[@]}" || echo "  !! something failed: systemctl --user --failed"
 
+# qBittorrent: turn off its login for your network and set the download folder.
+if [[ " ${START[*]} " == *" qbittorrent.service "* ]]; then
+  "$REPO/scripts/qbittorrent-setup.sh" || echo "  !! qBittorrent setup failed - run ./scripts/qbittorrent-setup.sh later"
+fi
+
 # Keep images fresh (containers marked AutoUpdate=registry).
 systemctl --user enable --now podman-auto-update.timer >/dev/null 2>&1 || true
 

@@ -147,15 +147,21 @@ port when you reconnect, so update it then. Downloads still work without it, jus
 
 Wiring the apps together (they're on the `homelab` network, while qBittorrent is on the host):
 
-- **qBittorrent** (http://localhost:8080). Get the temporary password with
-  `journalctl --user -u qbittorrent | grep -i password`, then change it. Set the
-  default save path to `/data/torrents`, and set the network interface (above).
+- **No logins.** Radarr, Sonarr and Prowlarr have their login pages turned off
+  (`*__AUTH__METHOD=External` in their `.container` files). Bazarr and Homepage
+  have no login. `deploy.sh` runs `scripts/qbittorrent-setup.sh`, which turns off
+  qBittorrent's login for home-network and container addresses, and points
+  downloads at `/data/torrents`. Anyone on your home Wi-Fi can open these pages;
+  they aren't reachable from the internet.
+- **qBittorrent** (http://192.168.8.249:8080). There's nothing to set up. Binding it to the VPN
+  interface (above) is optional extra protection.
 - **Prowlarr** (http://localhost:9696). Add your indexers. Add FlareSolverr at
   `http://flaresolverr:8191`. Under *Settings -> Apps*, add Radarr (`http://radarr:7878`)
   and Sonarr (`http://sonarr:8989`) with their API keys (each app's *Settings -> General*).
   Use `http://prowlarr:9696` as the Prowlarr server address.
-- **Radarr / Sonarr.** Add a qBittorrent download client with host `host.containers.internal`,
-  port `8080`, and category `movies` / `tv`. Set the root folder to `/data/media/movies` / `/data/media/tv`.
+- **Radarr / Sonarr.** Add a qBittorrent download client with host `host.containers.internal`
+  (or `192.168.8.249` if the test fails), port `8080`, **username and password left blank**,
+  and category `movies` / `tv`. Set the root folder to `/data/media/movies` / `/data/media/tv`.
 - **Bazarr** (http://localhost:6767). Connect Radarr at host `radarr`, port 7878, and Sonarr at host `sonarr`, port 8989.
 - **Jellyfin** libraries: `/data/media/movies` and `/data/media/tv`.
 - **Jellyseerr:** Jellyfin is `http://jellyfin:8096`, Radarr is `radarr:7878`, and Sonarr is `sonarr:8989`.
