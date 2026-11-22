@@ -124,26 +124,29 @@ make it legal to download content you don't have the rights to.
 
 ### Setup
 
-1. **Choose a VPN that supports port forwarding.** Torrents are much faster with
-   it. ProtonVPN (Plus plan), PIA and AirVPN support it; Mullvad doesn't anymore.
+1. **ProtonVPN Plus (or higher)** is required. P2P servers and port forwarding
+   aren't on the free plan.
 2. Run `./scripts/deploy.sh gaming-pc` once. It creates `~/homelab/gluetun/vpn.env`
    and the `~/data` folders, and holds the VPN apps back until the VPN is configured.
-3. Edit `~/homelab/gluetun/vpn.env`. Pick your provider's block and paste in your
-   WireGuard private key (for ProtonVPN: Account -> WireGuard -> create a config with
-   *NAT-PMP (port forwarding)* turned on). For other providers, see the
-   [Gluetun provider docs](https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers).
+3. Make a WireGuard key: [account.protonvpn.com](https://account.protonvpn.com) ->
+   *Downloads* -> *WireGuard configuration*. Choose platform *Router*, turn
+   **NAT-PMP (Port Forwarding) ON**, leave Moderate NAT off, and set NetShield off.
+   Pick any P2P server and click *Create*. Copy only the `PrivateKey = ...` value
+   into `WIREGUARD_PRIVATE_KEY` in `~/homelab/gluetun/vpn.env`. Optionally set
+   `SERVER_COUNTRIES` to the country nearest you.
 4. Run `./scripts/deploy.sh gaming-pc` again, then check for leaks:
    ```bash
    ./scripts/vpn-check.sh
    ```
-   Every container should show an IP that is **not** your home IP.
+   Every container should show an IP that is **not** your home IP, along with a forwarded port.
 5. Connect the apps (all inside the pod, so the host is always `localhost`):
    - **qBittorrent** (http://localhost:8080). Get the temporary password with
      `journalctl --user -u qbittorrent | grep -i password`, then change it.
      Under *Options -> Downloads*, set the default save path to `/data/torrents`.
-     Under *Options -> Connection*, set the listening port to the forwarded port
-     shown by `vpn-check.sh`. Under *Options -> Advanced*, set the network
-     interface to `tun0`, so traffic can't leave any other way even if the firewall failed.
+     Under *Options -> Web UI*, turn on **Bypass authentication for clients on
+     localhost**. Gluetun then sets the listening port (Proton changes it on every
+     reconnect) and pins qBittorrent to the VPN interface automatically. Restart
+     Gluetun once so it pushes the port: `systemctl --user restart gluetun`.
    - **Prowlarr** (http://localhost:9696). Add your indexers. Under *Settings -> Indexers*,
      add FlareSolverr at `http://localhost:8191`. Under *Settings -> Apps*, add Radarr
      (`http://localhost:7878`) and Sonarr (`http://localhost:8989`) with their API keys
@@ -175,7 +178,9 @@ for hardlinks to work.
 
 - `journalctl --user -u gluetun -f` shows the VPN connecting and any auth errors.
 - If a web UI won't load but the VPN is up, check `systemctl --user status vpn-pod`.
-- Gluetun restarting in a loop usually means bad credentials or a wrong server country in `vpn.env`.
+- Gluetun restarting in a loop usually means a bad key, or a country with no Proton P2P servers. Remove `SERVER_COUNTRIES` to test.
+- No forwarded port means the WireGuard key was made without NAT-PMP. Make a new key with it ON.
+- qBittorrent's port not updating: check *Bypass authentication for clients on localhost* is on, then look for `setPreferences` in `journalctl --user -u gluetun`.
 
 ## Day to day
 

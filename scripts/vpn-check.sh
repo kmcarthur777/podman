@@ -23,7 +23,9 @@ podman exec qbittorrent cat /etc/resolv.conf 2>/dev/null | grep nameserver || ec
 
 if podman container exists gluetun 2>/dev/null; then
   echo
-  echo "Forwarded port from VPN (set this as qBittorrent's listening port):"
-  podman exec gluetun cat /tmp/gluetun/forwarded_port 2>/dev/null || echo "  (none - provider/plan has no port forwarding)"
+  echo "Forwarded port from ProtonVPN (should match qBittorrent's listening port):"
+  podman exec gluetun cat /tmp/gluetun/forwarded_port 2>/dev/null \
+    || journalctl --user -u gluetun --no-pager | grep -io 'port forwarded is [0-9]*' | tail -1 \
+    || echo "  (none yet - check NAT-PMP was ON when you made the WireGuard key)"
 fi
 [[ $ok == 1 ]] || exit 1
